@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#050505" />
+<title>Love in Every Language — Cinematic</title>
+<style>
+  :root{
+    --black:#050505;
+    --black-2:#0c0c0c;
+    --white:#f5f5f2;
+    --soft:#c9c9c3;
+    --dim:#777773;
+    --line:rgba(255,255,255,.16);
+    --glass:rgba(10,10,10,.58);
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:var(--black);
+  }
+
+  body{
+    font-family:Inter,"Segoe UI","Nirmala UI","Noto Sans Bengali","Noto Sans",Arial,sans-serif;
+    color:var(--white);
+  }
+
+  button,input{font:inherit}
+  button{color:inherit}
+
+  .scene{
+    position:relative;
+    width:100%;
+    height:100%;
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    isolation:isolate;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(255,255,255,.055), transparent 23%),
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,.025), transparent 22%),
+      radial-gradient(circle at 78% 78%, rgba(255,255,255,.02), transparent 25%),
+      linear-gradient(145deg,#030303 0%,#0a0a0a 48%,#050505 100%);
+  }
+
+  .scene::before{
+    content:"";
+    position:absolute;
+    inset:-35%;
+    z-index:20;
+    pointer-events:none;
+    opacity:.10;
+    mix-blend-mode:screen;
+    background-image:
+      repeating-radial-gradient(circle at 17% 23%, rgba(255,255,255,.9) 0 .45px, transparent .6px 3px),
+      repeating-radial-gradient(circle at 73% 64%, rgba(255,255,255,.45) 0 .35px, transparent .55px 4px);
+    background-size:5px 5px,7px 7px;
+    animation:grain .24s steps(2) infinite;
+  }
+
+  .scene::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:19;
+    pointer-events:none;
+    background:
+      linear-gradient(to bottom,rgba(0,0,0,.58),transparent 12%,transparent 88%,rgba(0,0,0,.62)),
+      radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.22) 70%,rgba(0,0,0,.78) 100%);
+  }
+
+  @keyframes grain{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(1.5%,1%)}
+    50%{transform:translate(-1%,1.5%)}
+    75%{transform:translate(.7%,-1%)}
+    100%{transform:translate(-1.2%,-.4%)}
+  }
+
+  .top-rule,.bottom-rule{
+    position:absolute;
+    left:clamp(18px,4vw,56px);
+    right:clamp(18px,4vw,56px);
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent);
+    z-index:30;
+    pointer-events:none;
+  }
+  .top-rule{top:76px}
+  .bottom-rule{bottom:42px}
+
+  /* ------------------------- MUSIC PLAYER ------------------------- */
+  .music-player{
+    position:fixed;
+    top:20px;
+    left:clamp(16px,3vw,42px);
+    z-index:50;
+    display:grid;
+    grid-template-columns:36px minmax(122px,190px);
+    gap:10px;
+    align-items:center;
+    padding:8px 12px 8px 8px;
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:999px;
+    background:var(--glass);
+    box-shadow:0 10px 35px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.035);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    transition:border-color .35s ease,background .35s ease;
+  }
+  .music-player:hover{border-color:rgba(255,255,255,.28);background:rgba(14,14,14,.72)}
+
+  .play-toggle{
+    width:36px;
+    height:36px;
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:rgba(255,255,255,.035);
+    cursor:pointer;
+    transition:transform .22s ease,border-color .22s ease,background .22s ease;
+  }
+  .play-toggle:hover{transform:scale(1.045);border-color:rgba(255,255,255,.42);background:rgba(255,255,255,.065)}
+  .play-toggle svg{width:13px;height:13px;fill:currentColor}
+
+  .player-copy{min-width:0}
+  .track-row{display:flex;align-items:center;gap:8px;min-width:0}
+  .track-title{
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:11px;
+    line-height:1;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    color:#ededeb;
+    flex:1;
+  }
+  .music-state{
+    font-size:8px;
+    line-height:1;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:#8d8d89;
+    flex:0 0 auto;
+  }
+  .progress{
+    width:100%;
+    height:14px;
+    margin-top:4px;
+    appearance:none;
+    -webkit-appearance:none;
+    background:transparent;
+    cursor:pointer;
+  }
+  .progress::-webkit-slider-runnable-track{height:1px;background:rgba(255,255,255,.22)}
+  .progress::-webkit-slider-thumb{
+    appearance:none;-webkit-appearance:none;
+    width:5px;height:5px;border-radius:50%;background:#eee;margin-top:-2px;
+  }
+  .progress::-moz-range-track{height:1px;background:rgba(255,255,255,.22)}
+  .progress::-moz-range-thumb{width:5px;height:5px;border:0;border-radius:50%;background:#eee}
+
+  /* ------------------------- CLICK ME ------------------------- */
+  .reveal-button{
+    position:fixed;
+    top:26px;
+    right:clamp(18px,3.2vw,46px);
+    z-index:50;
+    border:0;
+    padding:7px 0 9px;
+    background:none;
+    cursor:pointer;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:13px;
+    font-style:italic;
+    letter-spacing:.10em;
+    color:#e9e9e6;
+    opacity:.82;
+    transition:opacity .25s ease,letter-spacing .35s ease;
+  }
+  .reveal-button::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;bottom:3px;
+    height:1px;
+    background:currentColor;
+    transform:scaleX(.35);
+    transform-origin:center;
+    opacity:.45;
+    transition:transform .35s ease,opacity .35s ease;
+  }
+  .reveal-button:hover{opacity:1;letter-spacing:.15em}
+  .reveal-button:hover::after{transform:scaleX(1);opacity:.8}
+  .reveal-button:disabled{cursor:default;opacity:.38}
+
+  /* ------------------------- HEART ------------------------- */
+  .stage{
+    position:relative;
+    width:min(96vw,1040px);
+    height:min(84vh,800px);
+    display:grid;
+    place-items:center;
+    z-index:5;
+    transition:opacity 1.3s cubic-bezier(.22,.61,.36,1),transform 1.5s cubic-bezier(.22,.61,.36,1),filter 1.5s ease;
+  }
+
+  .heart-aura{
+    position:absolute;
+    width:min(68vw,700px);
+    aspect-ratio:1;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.07) 0%,rgba(255,255,255,.026) 33%,transparent 68%);
+    filter:blur(38px);
+    animation:auraPulse 6s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes auraPulse{0%,100%{transform:scale(.97);opacity:.52}50%{transform:scale(1.03);opacity:.9}}
+
+  .heart{
+    position:relative;
+    z-index:2;
+    width:min(89vw,890px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(7px,1vh,10px);
+  }
+
+  .row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:clamp(8px,1vw,13px);
+    min-height:21px;
+    white-space:nowrap;
+  }
+  .r1{width:58%} .r2{width:73%} .r3{width:85%} .r4{width:94%} .r5{width:100%}
+  .r6{width:99%} .r7{width:97%} .r8{width:94%} .r9{width:90%} .r10{width:85%}
+  .r11{width:79%} .r12{width:72%} .r13{width:64%} .r14{width:55%} .r15{width:46%}
+  .r16{width:37%} .r17{width:28%} .r18{width:19%} .r19{width:11%}
+
+  .split{justify-content:space-between}
+  .lobe{display:flex;align-items:center;justify-content:center;gap:clamp(8px,1vw,13px)}
+  .r1 .lobe{width:39%} .r2 .lobe{width:43%} .r3 .lobe{width:46%} .r4 .lobe{width:47%}
+
+  .love{
+    display:inline-block;
+    font-size:clamp(10px,1.18vw,14px);
+    font-weight:500;
+    line-height:1;
+    letter-spacing:.015em;
+    color:rgba(242,242,238,.84)!important;
+    opacity:0;
+    transform:translate3d(var(--sx),var(--sy),0) scale(.97);
+    filter:blur(1.2px);
+    will-change:transform,opacity,filter;
+    animation:settle var(--dur) cubic-bezier(.17,.78,.16,1) var(--delay) forwards;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:geometricPrecision;
+    text-shadow:0 0 12px rgba(255,255,255,.035)!important;
+  }
+  .bangla{font-weight:600;color:#fff!important;text-shadow:0 0 14px rgba(255,255,255,.08)!important}
+
+  @keyframes settle{
+    0%{opacity:0;transform:translate3d(var(--sx),var(--sy),0) scale(.97);filter:blur(1.2px)}
+    48%{opacity:.68;filter:blur(.3px)}
+    84%{opacity:.96;transform:translate3d(0,0,0) scale(1.008);filter:blur(0)}
+    100%{opacity:.91;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+  }
+
+  .heart.finished{animation:heartBreath 7s ease-in-out infinite}
+  @keyframes heartBreath{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 0 10px rgba(255,255,255,.025))}
+    50%{transform:scale(1.006);filter:drop-shadow(0 0 18px rgba(255,255,255,.07))}
+  }
+
+  .scene.revealing .stage{opacity:0;transform:scale(.955);filter:blur(9px)}
+  .scene.revealing .heart-aura{opacity:0!important}
+
+  /* ------------------------- CINEMATIC PHRASE ------------------------- */
+  .cinematic{
+    position:absolute;
+    inset:0;
+    z-index:10;
+    display:grid;
+    place-items:center;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .9s ease;
+  }
+  .cinematic.active{opacity:1}
+
+  .cinematic-inner{
+    width:min(92vw,1000px);
+    min-height:260px;
+    display:grid;
+    place-items:center;
+    position:relative;
+  }
+
+  .phrase{
+    position:absolute;
+    max-width:92%;
+    text-align:center;
+    font-family:Georgia,"Times New Roman","Nirmala UI",serif;
+    font-size:clamp(34px,6.5vw,88px);
+    font-weight:400;
+    font-style:italic;
+    line-height:1.06;
+    letter-spacing:.01em;
+    color:#f3f3ef;
+    opacity:0;
+    transform:translateY(18px) scale(.992);
+    filter:blur(8px);
+    text-shadow:0 10px 50px rgba(255,255,255,.035);
+    will-change:opacity,transform,filter;
+  }
+
+  .phrase.show{animation:cinemaPhrase 2.35s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes cinemaPhrase{
+    0%{opacity:0;transform:translateY(17px) scale(.994);filter:blur(7px);letter-spacing:.025em}
+    23%{opacity:1;filter:blur(0);transform:translateY(0) scale(1);letter-spacing:.01em}
+    67%{opacity:1;filter:blur(0);transform:translateY(0) scale(1)}
+    100%{opacity:0;transform:translateY(-13px) scale(1.006);filter:blur(6px)}
+  }
+
+  .counter{
+    position:absolute;
+    bottom:88px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:10px;
+    font-style:italic;
+    letter-spacing:.22em;
+    color:rgba(255,255,255,.34);
+    opacity:0;
+    transition:opacity .7s ease;
+  }
+  .cinematic.active .counter{opacity:1}
+
+  .final-note{
+    position:absolute;
+    max-width:86vw;
+    text-align:center;
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity 1.4s ease,transform 1.4s ease;
+  }
+  .final-note.show{opacity:1;transform:translateY(0)}
+  .final-note .small{
+    display:block;
+    margin-bottom:12px;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:11px;
+    font-style:italic;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,.42);
+  }
+  .final-note .big{
+    display:block;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:clamp(38px,7vw,94px);
+    font-weight:400;
+    font-style:italic;
+    line-height:1;
+  }
+  .final-note .heart-mark{display:block;margin-top:24px;font-size:18px;color:rgba(255,255,255,.62)}
+
+  .hint{
+    position:fixed;
+    bottom:18px;
+    left:50%;
+    z-index:40;
+    transform:translateX(-50%);
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:10px;
+    font-style:italic;
+    letter-spacing:.12em;
+    color:rgba(255,255,255,.28);
+    white-space:nowrap;
+    transition:opacity .6s ease;
+  }
+  .scene.revealing .hint{opacity:0}
+
+  @media (max-width:720px){
+    .music-player{grid-template-columns:34px minmax(90px,142px);padding-right:10px;left:12px;top:14px}
+    .play-toggle{width:34px;height:34px}
+    .track-title{font-size:9px}
+    .music-state{display:none}
+    .reveal-button{top:19px;right:16px;font-size:12px}
+    .top-rule{top:67px;left:15px;right:15px}
+    .bottom-rule{bottom:38px;left:15px;right:15px}
+    .stage{width:100vw;height:82vh}
+    .heart{width:97vw;gap:6px}
+    .row,.lobe{gap:5px}
+    .love{font-size:clamp(8px,2.28vw,10.5px)}
+    .counter{bottom:72px}
+    .hint{bottom:13px;font-size:9px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .scene::before,.heart-aura,.heart.finished{animation:none}
+    .love{opacity:1;transform:none;filter:none;animation:none}
+    .phrase.show{animation:none;opacity:1;transform:none;filter:none}
+  }
+</style>
+</head>
+<body>
+<main class="scene" id="scene">
+  <div class="top-rule"></div>
+  <div class="bottom-rule"></div>
+
+  <audio id="loveSong" autoplay loop preload="auto">
+    <source src="cant-help-falling-in-love.mp3" type="audio/mpeg" />
+  </audio>
+
+  <div class="music-player" aria-label="Music player">
+    <button class="play-toggle" id="playToggle" type="button" aria-label="Pause music">
+      <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zm5 0h3v14h-3z"/></svg>
+    </button>
+    <div class="player-copy">
+      <div class="track-row">
+        <div class="track-title">Can't Help Falling in Love</div>
+        <div class="music-state" id="musicState">playing</div>
+      </div>
+      <input class="progress" id="progress" type="range" min="0" max="1000" value="0" aria-label="Song progress" />
+    </div>
+  </div>
+
+  <button class="reveal-button" id="revealButton" type="button">Click me</button>
+
+  <section class="stage" id="stage">
+    <div class="heart-aura"></div>
+    <div class="heart" id="heart">
+
+      <div class="row r1 split">
+        <div class="lobe">
+          <span class="love">Ich liebe dich</span>
+          <span class="love">Ti amo</span>
+        </div>
+        <div class="lobe">
+          <span class="love">Σ’ αγαπώ</span>
+          <span class="love">Te amo</span>
+        </div>
+      </div>
+
+      <div class="row r2 split">
+        <div class="lobe">
+          <span class="love">愛してる</span>
+          <span class="love">Aku cinta kamu</span>
+          <span class="love">Je t’aime</span>
+        </div>
+        <div class="lobe">
+          <span class="love">Anh yêu em</span>
+          <span class="love">Ik hou van jou</span>
+          <span class="love">사랑해</span>
+        </div>
+      </div>
+
+      <div class="row r3 split">
+        <div class="lobe">
+          <span class="love">Jag älskar dig</span>
+          <span class="love">Eu te amo</span>
+          <span class="love">Kocham cię</span>
+        </div>
+        <div class="lobe">
+          <span class="love">Seni seviyorum</span>
+          <span class="love">我爱你</span>
+          <span class="love">Te amo</span>
+        </div>
+      </div>
+
+      <div class="row r4 split">
+        <div class="lobe">
+          <span class="love">Я тебя люблю</span>
+          <span class="love">Ich liebe dich</span>
+          <span class="love">사랑해</span>
+        </div>
+        <div class="lobe">
+          <span class="love">Je t’aime</span>
+          <span class="love">愛してる</span>
+          <span class="love">I love you</span>
+        </div>
+      </div>
+
+      <div class="row r5">
+        <span class="love">Eu te amo</span>
+        <span class="love">Kocham cię</span>
+        <span class="love">Te amo</span>
+        <span class="love bangla">আমি তোমাকে ভালোবাসি</span>
+        <span class="love">Σ’ αγαπώ</span>
+        <span class="love">Anh yêu em</span>
+        <span class="love">我爱你</span>
+      </div>
+
+      <div class="row r6">
+        <span class="love">Jag älskar dig</span>
+        <span class="love">사랑해</span>
+        <span class="love">Ich liebe dich</span>
+        <span class="love">I love you</span>
+        <span class="love">Seni seviyorum</span>
+        <span class="love">Ti amo</span>
+      </div>
+
+      <div class="row r7">
+        <span class="love">Я тебя люблю</span>
+        <span class="love">Aku cinta kamu</span>
+        <span class="love">Je t’aime</span>
+        <span class="love">Ik hou van jou</span>
+        <span class="love">愛してる</span>
+        <span class="love">Eu te amo</span>
+      </div>
+
+      <div class="row r8">
+        <span class="love">Te amo</span>
+        <span class="love">Eu te amo</span>
+        <span class="love">Σ’ αγαπώ</span>
+        <span class="love">Kocham cię</span>
+        <span class="love">사랑해</span>
+        <span class="love">Anh yêu em</span>
+      </div>
+
+      <div class="row r9">
+        <span class="love">Ich liebe dich</span>
+        <span class="love">我爱你</span>
+        <span class="love">I love you</span>
+        <span class="love">Ti amo</span>
+        <span class="love">Я тебя люблю</span>
+        <span class="love">Je t’aime</span>
+      </div>
+
+      <div class="row r10">
+        <span class="love">Seni seviyorum</span>
+        <span class="love">Aku cinta kamu</span>
+        <span class="love">Te amo</span>
+        <span class="love">愛してる</span>
+        <span class="love">Jag älskar dig</span>
+      </div>
+
+      <div class="row r11">
+        <span class="love">Jag älskar dig</span>
+        <span class="love">Eu te amo</span>
+        <span class="love">사랑해</span>
+        <span class="love">Ik hou van jou</span>
+        <span class="love">I love you</span>
+      </div>
+
+      <div class="row r12">
+        <span class="love">Je t’aime</span>
+        <span class="love">Kocham cię</span>
+        <span class="love">Anh yêu em</span>
+        <span class="love">Ti amo</span>
+      </div>
+
+      <div class="row r13">
+        <span class="love">Ich liebe dich</span>
+        <span class="love bangla">ভালোবাসি</span>
+        <span class="love">Te amo</span>
+        <span class="love">我爱你</span>
+      </div>
+
+      <div class="row r14">
+        <span class="love">Σ’ αγαπώ</span>
+        <span class="love">사랑해</span>
+        <span class="love">Eu te amo</span>
+      </div>
+
+      <div class="row r15">
+        <span class="love">Aku cinta kamu</span>
+        <span class="love">I love you</span>
+        <span class="love">愛してる</span>
+      </div>
+
+      <div class="row r16">
+        <span class="love">Kocham cię</span>
+        <span class="love">Ti amo</span>
+      </div>
+
+      <div class="row r17">
+        <span class="love">Je t’aime</span>
+        <span class="love">사랑해</span>
+      </div>
+
+      <div class="row r18">
+        <span class="love">I love you</span>
+      </div>
+
+      <div class="row r19">
+        <span class="love">♡</span>
+      </div>
+
+    
+    </div>
+  </section>
+
+  <section class="cinematic" id="cinematic" aria-live="polite">
+    <div class="cinematic-inner">
+      <div class="phrase" id="phrase"></div>
+      <div class="final-note" id="finalNote">
+        <span class="small">in every language</span>
+        <span class="big">I love you.</span>
+        <span class="heart-mark">♡</span>
+      </div>
+    </div>
+    <div class="counter" id="counter"></div>
+  </section>
+
+  <div class="hint">for you, always</div>
+</main>
+
+<script>
+(() => {
+  const scene = document.getElementById("scene");
+  const heart = document.getElementById("heart");
+  const words = [...document.querySelectorAll(".love")];
+  const rows = [...heart.querySelectorAll(".row")];
+  const revealButton = document.getElementById("revealButton");
+  const cinematic = document.getElementById("cinematic");
+  const phrase = document.getElementById("phrase");
+  const counter = document.getElementById("counter");
+  const finalNote = document.getElementById("finalNote");
+
+  const audio = document.getElementById("loveSong");
+  const playToggle = document.getElementById("playToggle");
+  const playIcon = document.getElementById("playIcon");
+  const musicState = document.getElementById("musicState");
+  const progress = document.getElementById("progress");
+
+  const translations = [
+      "Ich liebe dich",
+      "Ti amo",
+      "Σ’ αγαπώ",
+      "Te amo",
+      "愛してる",
+      "Aku cinta kamu",
+      "Je t’aime",
+      "Anh yêu em",
+      "Ik hou van jou",
+      "사랑해",
+      "Jag älskar dig",
+      "Eu te amo",
+      "Kocham cię",
+      "Seni seviyorum",
+      "我爱你",
+      "Я тебя люблю",
+      "I love you",
+      "আমি তোমাকে ভালোবাসি",
+      "ভালোবাসি"
+  ];
+
+  let seed = 481927;
+  const rnd = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+
+  words.forEach((word,index) => {
+    const row = word.closest(".row");
+    const rowIndex = rows.indexOf(row);
+    const localIndex = [...row.querySelectorAll(".love")].indexOf(word);
+    const direction = index % 2 === 0 ? -1 : 1;
+    const sx = direction * (16 + rnd()*24);
+    const sy = -7 + rnd()*14;
+    const delay = 100 + rowIndex*118 + localIndex*40 + rnd()*30;
+    const duration = 920 + rnd()*240;
+
+    word.style.setProperty("--sx",`${sx}px`);
+    word.style.setProperty("--sy",`${sy}px`);
+    word.style.setProperty("--delay",`${delay}ms`);
+    word.style.setProperty("--dur",`${duration}ms`);
+  });
+
+  const finish = 100 + (rows.length-1)*118 + 6*40 + 30 + 1200;
+  setTimeout(() => heart.classList.add("finished"), finish);
+
+  /* Browsers can block audible autoplay. We request it immediately, then
+     resume on the visitor's first interaction if the browser requires one. */
+  const setPlayerUI = () => {
+    const playing = !audio.paused;
+    musicState.textContent = playing ? "playing" : "paused";
+    playToggle.setAttribute("aria-label", playing ? "Pause music" : "Play music");
+    playIcon.innerHTML = playing
+      ? '<path d="M8 5h3v14H8zm5 0h3v14h-3z"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+  };
+
+  const tryAutoplay = async () => {
+    try {
+      await audio.play();
+      setPlayerUI();
+    } catch (err) {
+      musicState.textContent = "tap to play";
+      setPlayerUI();
+    }
+  };
+
+  window.addEventListener("DOMContentLoaded", tryAutoplay, { once:true });
+
+  const unlockAudio = async () => {
+    if (audio.paused) {
+      try { await audio.play(); } catch (e) {}
+      setPlayerUI();
+    }
+  };
+  document.addEventListener("pointerdown", unlockAudio, { once:true, capture:true });
+  document.addEventListener("keydown", unlockAudio, { once:true, capture:true });
+
+  playToggle.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    if (audio.paused) {
+      try { await audio.play(); } catch (e) {}
+    } else {
+      audio.pause();
+    }
+    setPlayerUI();
+  });
+
+  audio.addEventListener("play", setPlayerUI);
+  audio.addEventListener("pause", setPlayerUI);
+  audio.addEventListener("timeupdate", () => {
+    if (Number.isFinite(audio.duration) && audio.duration > 0) {
+      progress.value = Math.round((audio.currentTime / audio.duration) * 1000);
+    }
+  });
+  progress.addEventListener("input", () => {
+    if (Number.isFinite(audio.duration) && audio.duration > 0) {
+      audio.currentTime = (progress.value / 1000) * audio.duration;
+    }
+  });
+
+  let running = false;
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function runCinematic() {
+    if (running) return;
+    running = true;
+    revealButton.disabled = true;
+    revealButton.textContent = "For you";
+    finalNote.classList.remove("show");
+    phrase.classList.remove("show");
+
+    await unlockAudio();
+    scene.classList.add("revealing");
+    await sleep(1050);
+    cinematic.classList.add("active");
+    await sleep(280);
+
+    for (let i = 0; i < translations.length; i++) {
+      phrase.textContent = translations[i];
+      counter.textContent = `${String(i+1).padStart(2,"0")} / ${String(translations.length).padStart(2,"0")}`;
+      phrase.classList.remove("show");
+      void phrase.offsetWidth;
+      phrase.classList.add("show");
+      await sleep(2220);
+    }
+
+    phrase.classList.remove("show");
+    counter.textContent = "";
+    await sleep(220);
+    finalNote.classList.add("show");
+    await sleep(3900);
+
+    finalNote.classList.remove("show");
+    cinematic.classList.remove("active");
+    await sleep(700);
+    scene.classList.remove("revealing");
+    revealButton.disabled = false;
+    revealButton.textContent = "Again";
+    running = false;
+  }
+
+  revealButton.addEventListener("click", runCinematic);
+})();
+</script>
+</body>
+</html>
