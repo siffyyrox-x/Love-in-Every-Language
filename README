@@ -1,19 +1,14 @@
 # Love in Every Language
 
-A simple romantic web animation where “I love you” in different languages smoothly comes together to form a heart.
-
-The project is built entirely in a single `index.html` file and can be deployed directly with GitHub Pages.
+A cinematic romantic web animation where “I love you” in different languages forms a heart, fades away, and appears one by one with background music.
 
 ## Features
 
-- Animated heart made from love phrases
-- Multiple languages
+- Animated multilingual heart
 - Bangla included
-- Smooth text positioning animation
-- Romantic pink, rose, lavender, and champagne color palette
-- Soft glowing background
+- Black-and-white romantic theme
+- Cinematic fade animations
+- Background music with player
+- “Click me” interaction
 - Responsive design
-- No external libraries
-- No frameworks
-- Single-file project
-
+- No libraries or frameworks
