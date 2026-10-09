@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#050505" />
 <title>Love in Every Language — Cinematic</title>
 <style>
@@ -409,6 +409,305 @@
     .hint{bottom:13px;font-size:9px}
   }
 
+
+  /* ========================= MOBILE POSITIONING FIX =========================
+     Keeps the composition locked in place on mobile browsers whose address
+     bars change the visual viewport height. Desktop styling above is untouched.
+  ========================================================================== */
+
+  @supports (height: 100dvh){
+    html,body{height:100dvh}
+    .scene{height:100dvh;min-height:100dvh}
+  }
+
+  @media (max-width:720px){
+    html,body{
+      width:100%;
+      height:100%;
+      min-height:100%;
+      overflow:hidden;
+      overscroll-behavior:none;
+    }
+
+    body{
+      position:fixed;
+      inset:0;
+    }
+
+    .scene{
+      width:100vw;
+      height:100svh;
+      min-height:100svh;
+      overflow:hidden;
+    }
+
+    @supports (height:100dvh){
+      .scene{
+        height:100dvh;
+        min-height:100dvh;
+      }
+    }
+
+    /* Lock both top controls to the phone safe area. */
+    .music-player{
+      top:calc(10px + env(safe-area-inset-top));
+      left:calc(10px + env(safe-area-inset-left));
+      width:min(52vw,184px);
+      grid-template-columns:32px minmax(0,1fr);
+      gap:8px;
+      padding:6px 9px 6px 6px;
+      border-radius:999px;
+    }
+
+    .play-toggle{
+      width:32px;
+      height:32px;
+      min-width:32px;
+      min-height:32px;
+    }
+
+    .player-copy{min-width:0}
+    .track-row{min-width:0}
+    .track-title{
+      min-width:0;
+      font-size:8.5px;
+      letter-spacing:.055em;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .music-state{display:none}
+    .progress{height:11px;margin-top:3px}
+
+    .reveal-button{
+      top:calc(17px + env(safe-area-inset-top));
+      right:calc(12px + env(safe-area-inset-right));
+      max-width:31vw;
+      padding:6px 0 8px;
+      font-size:11px;
+      letter-spacing:.08em;
+      white-space:nowrap;
+    }
+
+    .top-rule{
+      top:calc(59px + env(safe-area-inset-top));
+      left:calc(12px + env(safe-area-inset-left));
+      right:calc(12px + env(safe-area-inset-right));
+    }
+
+    .bottom-rule{
+      bottom:calc(30px + env(safe-area-inset-bottom));
+      left:calc(12px + env(safe-area-inset-left));
+      right:calc(12px + env(safe-area-inset-right));
+    }
+
+    /* Give the heart its own stable area instead of centering against
+       the browser chrome. */
+    .stage{
+      position:absolute;
+      top:calc(66px + env(safe-area-inset-top));
+      right:0;
+      bottom:calc(36px + env(safe-area-inset-bottom));
+      left:0;
+      width:100%;
+      height:auto;
+      padding:4px 3px;
+      display:grid;
+      place-items:center;
+    }
+
+    .heart-aura{
+      width:min(92vw,520px);
+      max-height:72vh;
+    }
+
+    .heart{
+      width:96vw;
+      max-width:620px;
+      gap:clamp(2px,.58vh,5px);
+    }
+
+    .row{
+      gap:clamp(3px,.85vw,5px);
+      min-height:clamp(13px,2.25vh,18px);
+    }
+
+    .lobe{
+      gap:clamp(3px,.85vw,5px);
+    }
+
+    .love{
+      font-size:clamp(7px,2.12vw,10px);
+      line-height:1;
+      letter-spacing:0;
+    }
+
+    /* Keep the cinematic text in the same usable content area as the heart. */
+    .cinematic{
+      top:calc(64px + env(safe-area-inset-top));
+      right:0;
+      bottom:calc(36px + env(safe-area-inset-bottom));
+      left:0;
+      inset-block-start:calc(64px + env(safe-area-inset-top));
+      inset-block-end:calc(36px + env(safe-area-inset-bottom));
+      height:auto;
+    }
+
+    .cinematic-inner{
+      width:94vw;
+      min-height:180px;
+    }
+
+    .phrase{
+      max-width:92vw;
+      padding:0 10px;
+      font-size:clamp(28px,10vw,58px);
+      line-height:1.08;
+    }
+
+    .counter{
+      bottom:12px;
+      font-size:9px;
+    }
+
+    .final-note{
+      max-width:90vw;
+      padding:0 14px;
+    }
+
+    .final-note .small{
+      font-size:9px;
+      margin-bottom:9px;
+    }
+
+    .final-note .big{
+      font-size:clamp(34px,11vw,62px);
+    }
+
+    .final-note .heart-mark{
+      margin-top:18px;
+    }
+
+    .hint{
+      bottom:calc(8px + env(safe-area-inset-bottom));
+      max-width:90vw;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-size:8px;
+      letter-spacing:.08em;
+    }
+  }
+
+  /* Very narrow phones: make the controls impossible to collide. */
+  @media (max-width:380px){
+    .music-player{
+      width:148px;
+      grid-template-columns:30px minmax(0,1fr);
+      gap:6px;
+      padding:5px 8px 5px 5px;
+    }
+
+    .play-toggle{
+      width:30px;
+      height:30px;
+      min-width:30px;
+      min-height:30px;
+    }
+
+    .track-title{font-size:7.7px}
+    .reveal-button{
+      right:calc(10px + env(safe-area-inset-right));
+      font-size:10.5px;
+    }
+
+    .heart{width:97vw}
+    .row,.lobe{gap:3px}
+    .love{font-size:clamp(6.7px,2.08vw,8.6px)}
+  }
+
+  /* Short phones (or browser UI taking a lot of vertical room). */
+  @media (max-width:720px) and (max-height:680px){
+    .stage{
+      top:calc(58px + env(safe-area-inset-top));
+      bottom:calc(28px + env(safe-area-inset-bottom));
+    }
+
+    .top-rule{top:calc(54px + env(safe-area-inset-top))}
+    .bottom-rule{bottom:calc(24px + env(safe-area-inset-bottom))}
+
+    .heart{gap:2px}
+    .row{
+      min-height:12px;
+      gap:3px;
+    }
+    .lobe{gap:3px}
+    .love{font-size:clamp(6.6px,1.98vw,8.8px)}
+
+    .cinematic{
+      inset-block-start:calc(56px + env(safe-area-inset-top));
+      inset-block-end:calc(28px + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* Mobile landscape: preserve the whole composition instead of letting
+     the heart run behind the controls. */
+  @media (orientation:landscape) and (max-height:520px){
+    .music-player{
+      top:calc(6px + env(safe-area-inset-top));
+      left:calc(8px + env(safe-area-inset-left));
+      width:158px;
+      grid-template-columns:28px minmax(0,1fr);
+      padding:4px 7px 4px 4px;
+      gap:6px;
+    }
+
+    .play-toggle{
+      width:28px;
+      height:28px;
+      min-width:28px;
+      min-height:28px;
+    }
+
+    .track-title{font-size:7.5px}
+    .progress{height:8px;margin-top:1px}
+
+    .reveal-button{
+      top:calc(10px + env(safe-area-inset-top));
+      right:calc(10px + env(safe-area-inset-right));
+      font-size:10px;
+    }
+
+    .top-rule{top:calc(45px + env(safe-area-inset-top))}
+    .bottom-rule{bottom:calc(16px + env(safe-area-inset-bottom))}
+
+    .stage{
+      top:calc(48px + env(safe-area-inset-top));
+      bottom:calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .heart{
+      width:min(72vw,610px);
+      gap:1px;
+    }
+
+    .row{
+      min-height:9px;
+      gap:3px;
+    }
+    .lobe{gap:3px}
+    .love{font-size:clamp(5.7px,1.15vw,7.6px)}
+
+    .heart-aura{width:min(58vw,430px)}
+
+    .cinematic{
+      inset-block-start:calc(46px + env(safe-area-inset-top));
+      inset-block-end:calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .phrase{font-size:clamp(25px,6.2vw,48px)}
+    .counter{bottom:5px}
+    .hint{display:none}
+  }
+
   @media (prefers-reduced-motion:reduce){
     .scene::before,.heart-aura,.heart.finished{animation:none}
     .love{opacity:1;transform:none;filter:none;animation:none}
@@ -638,6 +937,7 @@
   const progress = document.getElementById("progress");
 
   const translations = [
+      "আমি তোমাকে ভালোবাসি",
       "Ich liebe dich",
       "Ti amo",
       "Σ’ αγαπώ",
@@ -655,7 +955,6 @@
       "我爱你",
       "Я тебя люблю",
       "I love you",
-      "আমি তোমাকে ভালোবাসি",
       "ভালোবাসি"
   ];
 
